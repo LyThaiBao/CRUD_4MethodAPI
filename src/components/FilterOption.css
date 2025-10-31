@@ -1,0 +1,6 @@
+.search__form {
+  gap: 10px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
