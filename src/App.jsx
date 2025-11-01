@@ -16,6 +16,7 @@ function App() {
   const [post, dispatch] = useReducer(setPost, []);
   const [err, setErr] = useState(null);
   const [editPost, setEditPost] = useState(null);
+  const [visiblePost, setVisiblePost] = useState(post);
   function handleDelete(id) {
     deletePost(BASE__URL, id, { setLoad, setErr, dispatch });
   }
@@ -33,12 +34,39 @@ function App() {
         { title, content, author, createdAt },
         { setLoad, setErr, dispatch }
       );
-    // e.target.reset();
   }
   function handleEdit(post, id) {
     modifyPost(BASE__URL, id, post, { setLoad, setErr, dispatch });
     setEditPost(null);
   }
+  // ---------------------------This function use for small data, u just fetch one time and fillter client-side-------------------
+
+  // function handleSearch(authorSearch, titleSearch) {
+  //   if (!authorSearch && !titleSearch) {
+  //     setVisiblePost(post);
+  //     return;
+  //   }
+
+  //   const filtered = post.filter((p) => {
+  //     const matchAuthor = p.author
+  //     .toLowerCase()
+  //       .includes(authorSearch.toLowerCase());
+  //     const matchTitle = p.title
+  //       .toLowerCase()
+  //       .includes(titleSearch.toLowerCase());
+  //     return matchAuthor || matchTitle;
+  //   });
+
+  //   setVisiblePost(filtered);
+  // }
+  // -----------This function use for big data, first time u just fetch small piec of data and fetch many time-----
+  function handleSearch(authorSearch, titleSearch) {
+    let query = `?`;
+    if (authorSearch) query += `author=${authorSearch}&`;
+    if (titleSearch) query += `title=${titleSearch}`;
+    getPost(BASE__URL, query, { setLoad, setErr, dispatch });
+  }
+
   useEffect(() => {
     getPost(BASE__URL, ``, {
       setLoad,
@@ -46,6 +74,9 @@ function App() {
       dispatch,
     });
   }, []);
+  useEffect(() => {
+    setVisiblePost(post);
+  }, [post]);
   if (load) {
     return <div>Loading...</div>;
   }
@@ -54,7 +85,7 @@ function App() {
   }
   return (
     <>
-      <FilterOption />
+      <FilterOption handleSearch={handleSearch} />
       <PostInput
         handleCreate={handleCreate}
         handleModify={handleEdit}
